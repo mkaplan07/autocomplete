@@ -10,23 +10,35 @@ __dirname is the module's directory
 
 node ~/Desktop/docs/autocomplete/autocomplete.js
 */
-let startingDir = process.cwd();
-let unfilteredResults = fs.readdirSync(startingDir, { withFileTypes: true });
-let results = [];
-unfilteredResults.forEach(rr => {
-  if (rr.isDirectory()) {
-    results.push(rr.name);
-  }
-});
+function scanDir(dirOnly) {
+  let startingDir = process.cwd();
+  let rawResults = fs.readdirSync(startingDir, { withFileTypes: true });
+  let results = [];
 
-function getMatches(chars) {
+  if (dirOnly) { // TODO: fix this if/else
+    rawResults.forEach(rr => {
+      if (rr.isDirectory()) {
+        results.push(rr.name);
+      }
+    });
+  } else {
+    rawResults.forEach(rr => {
+      results.push(rr.name);
+    });
+  }
+
+  console.log(results);
+  return results;
+}
+
+function getMatches(chars, results) {
   return results.filter(res => res.toLowerCase().startsWith(chars.join('')));
 }
 
-function cycleMatches(chars, choices) {
+function cycleMatches(chars, choices, results) {
   process.stdout.cursorTo(0);
 
-  let matches = getMatches(chars);
+  let matches = getMatches(chars, results);
   let latest = choices[choices.length -1];
 
   if (!matches.length) {
@@ -54,8 +66,8 @@ function chooseLatest(chars, choices) {
   }
 }
 
-function chooseMatch(chars) {
-  let matches = getMatches(chars);
+function chooseMatch(chars, results) {
+  let matches = getMatches(chars, results);
   if (matches.length) {
     directory = matches[0];
   } else {
@@ -84,7 +96,9 @@ function displayLine(chars) { // TODO: reason for each?
 
 let unsupported = ['left', 'right', 'up', 'down'];
 
-function setDir() {
+function setDir(dirOnly) {
+  let results = scanDir(dirOnly);
+
   console.log(`=> Which directory?`);
 
   let chars = [];
@@ -96,13 +110,13 @@ function setDir() {
       process.exit();
 
     } else if (key.name === 'tab') {
-      cycleMatches(chars, choices);
+      cycleMatches(chars, choices, results);
 
     } else if (key.name === 'return') {
       if (choices.length) {
         chooseLatest(chars, choices);
       } else {
-        chooseMatch(chars);
+        chooseMatch(chars, results);
       }
       process.stdin.destroy();
 
@@ -137,5 +151,6 @@ function awaitDirectory() {
   }
 }
 
-setDir();
+setDir(false);
 awaitDirectory();
+// TODO: change prompt/vars to reflect directories & files

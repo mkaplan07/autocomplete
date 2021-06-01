@@ -13,22 +13,12 @@ node ~/Desktop/docs/autocomplete/autocomplete.js
 function scanDir(dirOnly) {
   let startingDir = process.cwd();
   let rawResults = fs.readdirSync(startingDir, { withFileTypes: true });
-  let results = [];
 
-  if (dirOnly) { // TODO: fix this if/else
-    rawResults.forEach(rr => {
-      if (rr.isDirectory()) {
-        results.push(rr.name);
-      }
-    });
-  } else {
-    rawResults.forEach(rr => {
-      results.push(rr.name);
-    });
+  if (dirOnly) {
+    rawResults = rawResults.filter(rr => rr.isDirectory());
   }
 
-  console.log(results);
-  return results;
+  return rawResults.map(rr => rr.name);
 }
 
 function getMatches(chars, results) {
@@ -78,8 +68,8 @@ function chooseMatch(chars, results) {
 function displayHelp() {
   console.log(`
     * * * * *
-    press 'tab' to cycle through directories
-    press 'return' to select a directory
+    press 'tab' to cycle matches
+    press 'return' to select
     press 'backspace' to delete input
     press 'ctrl-c' to quit
 
@@ -99,7 +89,7 @@ let unsupported = ['left', 'right', 'up', 'down'];
 function setDir(dirOnly) {
   let results = scanDir(dirOnly);
 
-  console.log(`=> Which directory?`);
+  console.log(`=> Which directory?`); // TODO: change prompt & ctrl-f "director"
 
   let chars = [];
   let choices = [];
@@ -125,7 +115,7 @@ function setDir(dirOnly) {
       displayLine(chars);
 
     } else if (key.name === 'backspace') {
-      choices.length = 0; // TODO: choices = [] ?
+      choices.length = 0;
       chars.pop();
       displayLine(chars);
 
@@ -147,10 +137,9 @@ function awaitDirectory() {
     }, 500);
   } else {
     console.log(`\nYou chose ${directory}.`);
-    return directory;
+    return directory; // TODO: verify that file/directory is returned to main
   }
 }
 
 setDir(false);
 awaitDirectory();
-// TODO: change prompt/vars to reflect directories & files

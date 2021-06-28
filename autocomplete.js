@@ -1,15 +1,11 @@
+// node ~/Desktop/docs/autocomplete/autocomplete.js
+
 const fs = require('fs');
 
 const readline = require('readline');
 readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
 
-/*
-process.cwd() returns cwd;
-__dirname is the module's directory
-
-node ~/Desktop/docs/autocomplete/autocomplete.js
-*/
 function scanDir(dirOnly) {
   let startingDir = process.cwd();
   let rawResults = fs.readdirSync(startingDir, { withFileTypes: true });
@@ -45,23 +41,23 @@ function cycleMatches(chars, choices, results) {
   process.stdout.write(chars.join(''));
 }
 
-let directory = '';
+let choice = '';
 
 function chooseLatest(chars, choices) {
   let latest = choices[choices.length -1];
   if (latest.toLowerCase().startsWith(chars.join(''))) {
-    directory = latest;
+    choice = latest;
   } else {
-    directory = chars.join('');
+    choice = chars.join('');
   }
 }
 
 function chooseMatch(chars, results) {
   let matches = getMatches(chars, results);
   if (matches.length) {
-    directory = matches[0];
+    choice = matches[0];
   } else {
-    directory = chars.join('');
+    choice = chars.join('');
   }
 }
 
@@ -86,10 +82,10 @@ function displayLine(chars) { // TODO: reason for each?
 
 let unsupported = ['left', 'right', 'up', 'down'];
 
-function setDir(dirOnly) {
+function setChoice(dirOnly) {
   let results = scanDir(dirOnly);
 
-  console.log(`=> Which directory?`); // TODO: change prompt & ctrl-f "director"
+  console.log(`=> Which directory or file?`);
 
   let chars = [];
   let choices = [];
@@ -130,16 +126,16 @@ function setDir(dirOnly) {
   });
 }
 
-function awaitDirectory() {
-  if (!directory) {
+function awaitChoice() {
+  if (!choice) {
     setTimeout(() => {
-      awaitDirectory();
+      awaitChoice();
     }, 500);
   } else {
-    console.log(`\nYou chose ${directory}.`);
-    return directory; // TODO: verify that file/directory is returned to main
+    console.log(`\nYou chose ${choice}.`);
+    return choice; // TODO: confirm that file/dir is returned to the main program
   }
 }
 
-setDir(false);
-awaitDirectory();
+setChoice(false);
+awaitChoice();

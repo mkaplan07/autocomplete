@@ -74,7 +74,7 @@ function displayHelp() {
     `);
 }
 
-function displayLine(chars) { // TODO: reason for each?
+function displayLine(chars) { // TODO: reason for each
   process.stdout.clearLine();
   process.stdout.cursorTo(0);
   process.stdout.write(chars.join(''));
@@ -133,7 +133,7 @@ function awaitChoice() {
     }, 500);
   } else {
     console.log(`\nYou chose ${choice}.`);
-    return choice; // TODO: confirm that file/dir is returned to the main program
+    return choice; // TODO: confirm that file/dir is returned to main
   }
 }
 

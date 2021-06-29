@@ -28,8 +28,8 @@ function cycleMatches(chars, choices, results) {
   let latest = choices[choices.length -1];
 
   if (!matches.length) {
-    console.log('No matches.');
-    displayLine(chars);
+    console.log('No matches');
+    displayLine(chars); // TODO: Is displayLine() necessary?
     return;
   } else if (!choices.length || matches[matches.length - 1] === latest) {
     choices.push(matches[0]);
@@ -43,34 +43,32 @@ function cycleMatches(chars, choices, results) {
 
 let choice = '';
 
-function chooseLatest(chars, choices) {
+function chooseLatest(chars, choices, results) {
   let latest = choices[choices.length -1];
   if (latest.toLowerCase().startsWith(chars.join(''))) {
-    choice = latest;
+    choice = `\nYou chose ${latest}`;
   } else {
-    choice = chars.join('');
+    chooseMatch(chars, results);
   }
 }
 
 function chooseMatch(chars, results) {
   let matches = getMatches(chars, results);
   if (matches.length) {
-    choice = matches[0];
+    choice = `\nchooseMatch: You chose ${matches[0]}`; // TODO: remove chooseMatch: x 2
   } else {
-    choice = chars.join('');
+    choice = '\nchooseMatch: No such file or directory';
   }
 }
 
 function displayHelp() {
   console.log(`
-    * * * * *
-    press 'tab' to cycle matches
-    press 'return' to select
-    press 'backspace' to delete input
-    press 'ctrl-c' to quit
+    'tab' to cycle matches
+    'return' to select
+    'backspace' to delete input
+    'ctrl-c' to quit
 
     arrow keys are not supported
-    * * * * *
     `);
 }
 
@@ -100,7 +98,7 @@ function setChoice(dirOnly) {
 
     } else if (key.name === 'return') {
       if (choices.length) {
-        chooseLatest(chars, choices);
+        chooseLatest(chars, choices, results);
       } else {
         chooseMatch(chars, results);
       }
@@ -111,7 +109,6 @@ function setChoice(dirOnly) {
       displayLine(chars);
 
     } else if (key.name === 'backspace') {
-      choices.length = 0;
       chars.pop();
       displayLine(chars);
 
@@ -132,8 +129,8 @@ function awaitChoice() {
       awaitChoice();
     }, 500);
   } else {
-    console.log(`\nYou chose ${choice}.`);
-    return choice; // TODO: confirm that file/dir is returned to main
+    console.log(choice);
+    // TODO: return file/dir to main – .split, .pop
   }
 }
 

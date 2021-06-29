@@ -116,7 +116,7 @@ function setChoice(dirOnly) {
       displayLine(chars);
 
     } else if (unsupported.includes(key.name)) {
-      console.log(`\n${key.name} not supported`);
+      console.log(` ${key.name} not supported`);
       displayLine(chars);
 
     } else {

@@ -29,7 +29,7 @@ function cycleMatches(chars, choices, results) {
 
   if (!matches.length) {
     console.log('No matches');
-    displayLine(chars); // TODO: Is displayLine() necessary?
+    displayLine(chars);
     return;
   } else if (!choices.length || matches[matches.length - 1] === latest) {
     choices.push(matches[0]);
@@ -43,21 +43,12 @@ function cycleMatches(chars, choices, results) {
 
 let choice = '';
 
-function chooseLatest(chars, choices, results) {
-  let latest = choices[choices.length -1];
-  if (latest.toLowerCase().startsWith(chars.join(''))) {
-    choice = `\nYou chose ${latest}`;
-  } else {
-    chooseMatch(chars, results);
-  }
-}
-
 function chooseMatch(chars, results) {
   let matches = getMatches(chars, results);
   if (matches.length) {
-    choice = `\nchooseMatch: You chose ${matches[0]}`; // TODO: remove chooseMatch: x 2
+    choice = `\nYou chose ${matches[0]}`;
   } else {
-    choice = '\nchooseMatch: No such file or directory';
+    choice = '\nNo such entry';
   }
 }
 
@@ -72,7 +63,7 @@ function displayHelp() {
     `);
 }
 
-function displayLine(chars) { // TODO: reason for each
+function displayLine(chars) { // TODO: note the reason for each
   process.stdout.clearLine();
   process.stdout.cursorTo(0);
   process.stdout.write(chars.join(''));
@@ -97,8 +88,9 @@ function setChoice(dirOnly) {
       cycleMatches(chars, choices, results);
 
     } else if (key.name === 'return') {
-      if (choices.length) {
-        chooseLatest(chars, choices, results);
+      let latest = choices[choices.length -1]; // TODO: choice.length 1st, then latest
+      if (choices.length && latest.toLowerCase().startsWith(chars.join(''))) {
+        choice = `\nYou chose ${latest}`;
       } else {
         chooseMatch(chars, results);
       }
@@ -134,5 +126,5 @@ function awaitChoice() {
   }
 }
 
-setChoice(false);
+setChoice(true);
 awaitChoice();

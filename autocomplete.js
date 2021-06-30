@@ -17,14 +17,14 @@ function scanDir(dirOnly) {
   return rawResults.map(rr => rr.name);
 }
 
-function getMatches(chars, results) {
+function findMatches(chars, results) {
   return results.filter(res => res.toLowerCase().startsWith(chars.join('')));
 }
 
 function cycleMatches(chars, choices, results) {
   process.stdout.cursorTo(0);
 
-  let matches = getMatches(chars, results);
+  let matches = findMatches(chars, results);
   let latest = choices[choices.length -1];
 
   if (!matches.length) {
@@ -43,12 +43,24 @@ function cycleMatches(chars, choices, results) {
 
 let choice = '';
 
-function chooseMatch(chars, results) {
-  let matches = getMatches(chars, results);
-  if (matches.length) {
+function matchCheck(chars, results) {
+  let matches = findMatches(chars, results);
+  if (!chars.join()) { // 3)
+    choice = `\nThat's an empty string`
+  } else if (matches.length) {
     choice = `\nYou chose ${matches[0]}`;
   } else {
     choice = '\nNo such entry';
+  }
+}
+
+function setChoice(chars, choices, results) {
+  let latest = choices[choices.length -1] || ''; // 1) to avoid another if
+  // 2) latest && --> if (latest === ''), skip to else
+  if (latest && latest.toLowerCase().startsWith(chars.join(''))) {
+    choice = `\nYou chose ${latest}`;
+  } else {
+    matchCheck(chars, results);
   }
 }
 
@@ -71,7 +83,7 @@ function displayLine(chars) { // TODO: note the reason for each
 
 let unsupported = ['left', 'right', 'up', 'down'];
 
-function setChoice(dirOnly) {
+function autocomplete(dirOnly) {
   let results = scanDir(dirOnly);
 
   console.log(`=> Which directory or file?`);
@@ -88,12 +100,7 @@ function setChoice(dirOnly) {
       cycleMatches(chars, choices, results);
 
     } else if (key.name === 'return') {
-      let latest = choices[choices.length -1]; // TODO: choice.length 1st, then latest
-      if (choices.length && latest.toLowerCase().startsWith(chars.join(''))) {
-        choice = `\nYou chose ${latest}`;
-      } else {
-        chooseMatch(chars, results);
-      }
+      setChoice(chars, choices, results);
       process.stdin.destroy();
 
     } else if (key.name === 'space') {
@@ -126,5 +133,5 @@ function awaitChoice() {
   }
 }
 
-setChoice(true);
+autocomplete(true);
 awaitChoice();
